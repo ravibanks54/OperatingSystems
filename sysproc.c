@@ -107,7 +107,7 @@ int
 sys_clone(void)
 {
 	int func, arg, stack;
-	
+	//error checking
 	if(argint(0, &function)<0){
 		return -1;
 	}

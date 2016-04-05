@@ -485,7 +485,12 @@ void clone(void* func, void* arg, void* stack)
 	np->stack = (int)stack;
 
 	//what do i do with the arguments?
+	//do some trapframe esp magic idk
 
+	np->tf->esp = (int)stack + 4092;
+	*((int *)(np->tf->esp)) = (int)arg;
+	*((int *)(np->tf->esp - 4)) = 0xFFFFFFFF;
+	np->tf->esp = np->tf->esp - 4;
 
 	for(i = 0; i < NOFILE; i++)
 		if(proc->ofile[i])
