@@ -463,3 +463,48 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+void clone(void* func, void* arg, void* stack)
+{
+
+	int i, pid;
+	struct proc* np;
+	if((np = allocproc()) == 0){
+		return -1;
+	}
+
+	np->sz = proc->sz;
+	np->parent = proc;
+	//check here whether a thread is calling clone (then you have to set np->parent = proc->parent
+	*np->tf = *proc->tf;
+
+
+	np->pgdir = proc->pgdir;
+	np->tf->eax = 0;
+	np->tf->eip = (int)func;
+	np->stack = (int)stack;
+
+	//what do i do with the arguments?
+
+
+	for(i = 0; i < NOFILE; i++)
+		if(proc->ofile[i])
+			np->ofile[i] = filedup(proc->ofile[i]);
+  	np->cwd = idup(proc->cwd);
+
+ 	safestrcpy(np->name, proc->name, sizeof(proc->name));
+ 
+	pid = np->pid;
+
+  // lock to force the compiler to emit the np->state write last.
+	acquire(&ptable.lock);
+	np->state = RUNNABLE;
+	release(&ptable.lock);
+
+  // exit();
+	return pid;
+}
+void join()
+{
+	return 0;
+}

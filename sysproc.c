@@ -102,3 +102,28 @@ sys_halt(void)
     outw(0xB004, 0x2000);
   return 0;
 }
+
+int
+sys_clone(void)
+{
+	int func, arg, stack;
+	
+	if(argint(0, &function)<0){
+		return -1;
+	}
+	if(argint(1, &arg)<0){
+		return -1;
+	}
+	if(argint(2, &stack)<0){
+		return -1;
+	}
+
+	return clone((void*)func, (void*)arg, (void*)stack);
+
+
+}
+int
+sys_join(void)
+{
+	return join();
+}
