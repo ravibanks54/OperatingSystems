@@ -509,7 +509,42 @@ void clone(void* func, void* arg, void* stack)
   // exit();
 	return pid;
 }
-void join()
+int join(void)
 {
-	return 0;
+	struct proc *p;
+	int havekids, pid;
+
+	acquire(&ptable.lock);
+	for(;;){
+		// Scan through table looking for zombie children.
+		havekids = 0;
+		for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+		// only wait for the child thread, but not the child process
+			if(p->parent != proc)
+				continue;
+			havekids = 1;
+			if(p->state == ZOMBIE){
+				// Found one.
+				pid = p->pid;
+				kfree(p->kstack);
+				p->kstack = 0;
+				p->state = UNUSED;
+				p->pid = 0;
+				p->parent = 0;
+				p->name[0] = 0;
+				p->killed = 0;
+				release(&ptable.lock);
+				return pid;
+			}
+		}
+
+		// No point waiting if we don't have any children thread.
+		if(!havekids || proc->killed){
+			release(&ptable.lock);
+			return -1;
+		}
+
+	    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+		sleep(proc, &ptable.lock);  
+	  }
 }
