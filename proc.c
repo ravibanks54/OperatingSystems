@@ -475,7 +475,11 @@ void clone(void* func, void* arg, void* stack)
 	np->isThread = 1;
 
 	np->sz = proc->sz;
-	np->parent = proc;
+	if (proc->isThread == 1){
+		np->parent = proc->parent;
+	}else{
+		np->parent = proc;
+	}
 	//check here whether a thread is calling clone (then you have to set np->parent = proc->parent
 	*np->tf = *proc->tf;
 
