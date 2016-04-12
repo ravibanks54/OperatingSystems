@@ -485,7 +485,7 @@ int clone(void* func, void* arg, void* stack)
 	*np->tf = *proc->tf;
 
 
-	np->pgdir = proc->pgdir;
+	np->pgdir = *(proc->pgdir); // we need to dereference the page table and copy it?
 	np->tf->eax = 0;
 	np->tf->eip = (int)func;
 	np->stack = (int)stack;
@@ -553,4 +553,6 @@ int join(void)
 	    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
 		sleep(proc, &ptable.lock);  
 	  }
+
+
 }

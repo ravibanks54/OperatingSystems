@@ -131,8 +131,11 @@ sys_join(void)
 int
 sys_texit(void)
 { 
-	void *rVal = exit(); 
+
+	void **rVal;
+	argint(0, &rVal); 
 	proc->retval = rVal; 
+	exit();
 	return 0;
 }
 

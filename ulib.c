@@ -103,3 +103,18 @@ memmove(void *vdst, void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg){
+	char *stack; 
+	stack = (char*) malloc(32); 
+clone(start_routine, arg, stack);
+}
+
+int pthread_join(pthread_t thread, void **retval){
+	//free up stack
+	join(thread,retval);
+}
+
+int pthread_exit(void *retval){
+	texit(retval);
+}
