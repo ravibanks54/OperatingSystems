@@ -24,6 +24,9 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int halt(void);
+int clone(void* func, void* arg, void* stack);
+int join(void);
+int texit(void);
 
 // ulib.c
 int stat(char*, struct stat*);
@@ -38,3 +41,6 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg); 
+int pthread_join(pthread_t thread, void **retval); 
+int pthread_exit(void *retval);

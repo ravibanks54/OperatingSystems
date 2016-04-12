@@ -464,7 +464,7 @@ procdump(void)
   }
 }
 
-void clone(void* func, void* arg, void* stack)
+int clone(void* func, void* arg, void* stack)
 {
 
 	int i, pid;
