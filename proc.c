@@ -492,7 +492,7 @@ int clone(void* func, void* arg, void* stack)
 
 	//what do i do with the arguments?
 	//do some trapframe esp magic idk
-
+	//Place some garbage value as the return value, make the esp be right above the function pointer and below the function pointers should be the arguments.
 	np->tf->esp = (int)stack + 4092;
 	*((int *)(np->tf->esp)) = (int)arg;
 	*((int *)(np->tf->esp - 4)) = 0xFFFFFFFF;
