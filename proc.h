@@ -66,7 +66,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  int isThread;
+  int isThread;			//lets us know if process is acting as a threads
+  void *retval;	// saves return value from texit
 };
 
 // Process memory is laid out contiguously, low addresses first:

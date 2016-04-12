@@ -130,9 +130,9 @@ sys_join(void)
 
 int
 sys_texit(void)
-{ 
-	void *rVal = exit(); 
-	proc->retval = rVal; 
-	return 0;
+{
+  // save return value of exit on the proc-struct
+ retval = exit()
+  if 
+   
 }
-
