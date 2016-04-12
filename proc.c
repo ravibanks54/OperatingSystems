@@ -480,7 +480,7 @@ void clone(void* func, void* arg, void* stack)
 	}else{
 		np->parent = proc;
 	}
-	//check here whether a thread is calling clone (then you have to set np->parent = proc->parent
+	
 	*np->tf = *proc->tf;
 
 
