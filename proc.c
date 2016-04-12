@@ -70,6 +70,7 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
   p->isThread = 0;
+  p->retVal = 0;
   return p;
 }
 
