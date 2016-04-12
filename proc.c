@@ -472,6 +472,7 @@ void clone(void* func, void* arg, void* stack)
 	if((np = allocproc()) == 0){
 		return -1;
 	}
+	np->isThread = 1;
 
 	np->sz = proc->sz;
 	np->parent = proc;
