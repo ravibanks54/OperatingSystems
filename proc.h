@@ -68,6 +68,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   int isThread;			//lets us know if process is acting as a threads
   void **retval;	// saves return value from texit
+  int *sp; // keep reference to stack pointer
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -12,10 +12,13 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
-static struct proc *initproc;
+static struct proc *ingit pull
+remote: Coitproc;
 
 int nextpid = 1;
-extern void forkret(void);
+extern void forkret(vogit pull
+remote: Cogit pull
+remote: Coid);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
@@ -482,13 +485,14 @@ int clone(void* func, void* arg, void* stack)
 		np->parent = proc;
 	}
 	
+	// copy parent's stack
 	*np->tf = *proc->tf;
 
 
-	np->pgdir = *(proc->pgdir); // we need to dereference the page table and copy it?
+	np->pgdir = proc->pgdir; // dp we need to dereference the page table and copy it?
 	np->tf->eax = 0;
 	np->tf->eip = (int)func;
-	np->stack = (int)stack;
+	np->sp = (int)stack;
 
 	//what do i do with the arguments?
 	//do some trapframe esp magic idk
@@ -553,6 +557,8 @@ int join(void)
 	    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
 		sleep(proc, &ptable.lock);  
 	  }
+
+
 
 
 }

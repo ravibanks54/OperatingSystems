@@ -18,10 +18,12 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_
 }
 
 int pthread_join(pthread_t thread, void **retval){
-	join();
+	// free up stack	
+	return join();
 }
 
 int pthread_exit(void *retval){
-	texit();
+	return texit(retval);
 }
+
 

@@ -134,7 +134,7 @@ sys_texit(void)
 
 	void **rVal;
 	argint(0, &rVal); 
-	proc->retval = rVal; 
+	proc->retval = &(rVal); 
 	exit();
 	return 0;
 }
