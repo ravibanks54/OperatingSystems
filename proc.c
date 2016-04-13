@@ -12,13 +12,12 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
-static struct proc *ingit pull
-remote: Coitproc;
+
+static struct proc *initproc;
 
 int nextpid = 1;
-extern void forkret(vogit pull
-remote: Cogit pull
-remote: Coid);
+extern void forkret(void);
+
 extern void trapret(void);
 
 static void wakeup1(void *chan);
@@ -73,7 +72,7 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
   p->isThread = 0;
-  p->retVal = 0;
+ // p->retVal = 0;
   return p;
 }
 
@@ -470,8 +469,8 @@ procdump(void)
 
 int clone(void* func, void* arg, void* stack)
 {
-
-	int i, pid;
+	//cprintf("Here in clone\n");
+	int i, pid; 
 	struct proc* np;
 	if((np = allocproc()) == 0){
 		return -1;
@@ -492,12 +491,12 @@ int clone(void* func, void* arg, void* stack)
 	np->pgdir = proc->pgdir; // dp we need to dereference the page table and copy it?
 	np->tf->eax = 0;
 	np->tf->eip = (int)func;
-	np->sp = (int)stack;
+	np->sp = stack;
 
 	//what do i do with the arguments?
 	//do some trapframe esp magic idk
 	//Place some garbage value as the return value, make the esp be right above the function pointer and below the function pointers should be the arguments.
-	np->tf->esp = (int)stack + 4092;
+	np->tf->esp = (int)stack + 4092; // push stack onto trapframe. IS this correct?
 	*((int *)(np->tf->esp)) = (int)arg;
 	*((int *)(np->tf->esp - 4)) = 0xFFFFFFFF;
 	np->tf->esp = np->tf->esp - 4;
@@ -519,10 +518,10 @@ int clone(void* func, void* arg, void* stack)
   // exit();
 	return pid;
 }
-int join(void)
+int join(int pid, void **stack, void **retval)
 {
 	struct proc *p;
-	int havekids, pid;
+	int havekids;
 
 	acquire(&ptable.lock);
 	for(;;){
@@ -533,9 +532,10 @@ int join(void)
 			if(p->parent != proc)
 				continue;
 			havekids = 1;
-			if(p->state == ZOMBIE){
+			if(p->state == ZOMBIE && pid == p->pid){
 				// Found one.
-				pid = p->pid;
+				//pid = p->pid;
+				  cprintf("Found %d == %d\n",pid, p->pid);				
 				kfree(p->kstack);
 				p->kstack = 0;
 				p->state = UNUSED;
@@ -544,6 +544,9 @@ int join(void)
 				p->name[0] = 0;
 				p->killed = 0;
 				release(&ptable.lock);
+				int rPrint = *(int*)(p->retval);
+				cprintf(" retval for pid %d, : %d\n",pid,  rPrint);                               
+				(*retval) = (p->retval);
 				return pid;
 			}
 		}
@@ -556,9 +559,9 @@ int join(void)
 
 	    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
 		sleep(proc, &ptable.lock);  
-	  }
+  }
 
-
+  return 0;
 
 
 }

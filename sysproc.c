@@ -108,7 +108,7 @@ sys_clone(void)
 {
 	int func, arg, stack;
 	//error checking
-	if(argint(0, &function)<0){
+	if(argint(0, &func)<0){
 		return -1;
 	}
 	if(argint(1, &arg)<0){
@@ -119,22 +119,37 @@ sys_clone(void)
 	}
 
 	return clone((void*)func, (void*)arg, (void*)stack);
-
-
+	//return 0;
+	
 }
 int
 sys_join(void)
 {
-	return join();
+	int pid;
+	int joinstack, retval;
+	if(argint(0, &pid)<0){
+		return -1;
+	}
+	if(argint(1, &joinstack)<0){
+		return -1;
+	}
+	if(argint(2, &retval)<0){
+		return -1;
+	}
+
+	return join(pid, (void**)joinstack, (void**)retval);
+	//return 0; 
 }
 
 int
 sys_texit(void)
 { 
 
-	void **rVal;
+	int rVal;
 	argint(0, &rVal); 
-	proc->retval = &(rVal); 
+	proc->retval = (void*)rVal;
+	//int rPrint = *(int*)(proc->retval); // previously proc->retval was a void**
+	//cprintf(" retval: %d, rVal: %d\n",rPrint, rVal);
 	exit();
 	return 0;
 }

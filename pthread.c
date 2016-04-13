@@ -7,7 +7,7 @@
 #include "proc.h"
 #include "x86.h"
 
-
+/*
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg){
 	void* stack = malloc(4096);
 	if (clone(start_routine, arg, stack) == 0){
@@ -26,4 +26,4 @@ int pthread_exit(void *retval){
 	return texit(retval);
 }
 
-
+*/

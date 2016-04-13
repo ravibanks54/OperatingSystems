@@ -48,6 +48,8 @@ struct context {
   uint ebp;
   uint eip;
 };
+int clone(void* func, void* arg, void* stack);
+int join(int pid, void **stack, void **retval);
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
@@ -67,7 +69,7 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   int isThread;			//lets us know if process is acting as a threads
-  void **retval;	// saves return value from texit
+  void *retval;	// saves return value from texit
   int *sp; // keep reference to stack pointer
 };
 
