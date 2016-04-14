@@ -571,32 +571,58 @@ int mutex_init(void){
 		return -1;
 	}
 	
-	proc->mTable[mutexCount].isActive = 0;	//Set to inactive initially
+	initlock(proc->mTable[&mutexCount].lock, "mutex");
+	
+	proc->mTable[mutexCount].isLocked = 0;  //Set to active/unlocked initially
+	proc->mTable[mutexCount].isActive = 1;	
 	
 	proc->mutexCount++;
 	return proc->mutexCount-1;	//Return the correct id after incrementing
 } 
 
 int mutex_destroy(int mutex_id){
+	if (mutex_id < 0 || mutex_id >31){
+		return -1; //bad
+	}
+	proc->mTable[mutexCount].isLocked = 0;  
+	proc->mTable[mutexCount].isActive = 0;	//Set to inactive
 	return 0;
 }
 
 int mutex_lock(int mutex_id){
-	while(proc->mTable[mutexCount].isActive == 1){
-		//sleep
+	if (mutex_id < 0 || mutex_id > 31){
+		return -1;	//bad
 	}
-	if (proc->mTable[mutexCount].isActive != 0){	//Redundant check
+	
+	if (proc->mTable[mutex_id].isActive == 0){
+		return -1;	//inactive lock, init again
+	}
+	
+	acquire(&proc->mTable[mutex_id].lock);
+	while(proc->mTable[mutexCount].isLocked == 1){	
+		sleep(&proc->mTable[mutex_id], &proc->mTable[mutex_id].lock);
+	}
+	release(&proc->mTable[mutex_id].lock);
+	if (proc->mTable[mutexCount].isLocked != 0){	//Redundant check
+		return -1;
 		//wtf just happened, throw error
 	}else{
-		proc->mTable[mutexCount].isActive = 1;
+		proc->mTable[mutexCount].isLocked = 1;
 		return 0;
 	}
 	return 0;
 }
 
 int mutex_unlock(int mutex_id){
-	//acquire
-	proc->mTable[mutexCount].isActive = 0;
-	//wakeup
+	if (mutex_id < 0 || mutex_id >31){
+		return -1; //bad
+	}
+	if (proc->mTable[mutex_id].isActive == 0){
+		return -1;	//inactive lock, init again
+	}
+	acquire(&proc->mTable[mutex_id].lock);
+	proc->mTable[mutexCount].isLocked = 0;
+	wakeup(&proc->mTable[mutex_id].lock);
+	release(&proc->mTable[mutex_id].lock);
 	return 0;
 }

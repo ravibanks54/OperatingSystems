@@ -51,7 +51,9 @@ struct context {
 
 struct mutex {
   //int id;
+  int isLocked;
   int isActive;
+  struct spinlock lock;
 };
 
 int clone(void* func, void* arg, void* stack);
