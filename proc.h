@@ -49,12 +49,14 @@ struct context {
   uint eip;
 };
 
-struct pthread_mutex_t {
+typedef struct pthread_mutex {
   int id;
   int isLocked;
   int isActive;
-  struct spinlock lock;
-};
+  struct spinlock * lock;
+}pthread_mutex_t;
+
+
 
 int clone(void* func, void* arg, void* stack);
 int join(int pid, void **stack, void **retval);
@@ -83,7 +85,7 @@ struct proc {
   int isThread;			//lets us know if process is acting as a threads
   void *retval;	// saves return value from texit
   int *sp; // keep reference to stack pointer
-  struct pthread_mutex_t mTable[32];
+  pthread_mutex_t mTable[32];
   int mutexCount;
 };
 

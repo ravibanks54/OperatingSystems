@@ -170,7 +170,7 @@ sys_mutex_init(void)
 	proc->mTable[mutexCount].isLocked = 0;  //Set to active/unlocked initially
 	proc->mTable[mutexCount].isActive = 1;	
 	
-	threadptr = &proc->mTable[mutexCount]
+	threadptr = &proc->mTable[mutexCount];
 	
 	proc->mutexCount++;
 	return proc->mutexCount-1;	//Return the correct id after incrementing
@@ -189,13 +189,13 @@ sys_mutex_lock(void)
 {
 	void* threadptr;
 	argint(0, &threadptr);
-	return mutex_lock((pthread_mutex_t*)threadptr->id);
+	return mutex_lock((void*)threadptr->id);
 }
 
 int sys_mutex_unlock(void)
 {
-	void* threadptr;
+	int threadptr;
 	argint(0, &threadptr);
-	return mutex_lock((pthread_mutex_t*)threadptr->id);
+	return mutex_lock((void*)threadptr->id);
 }
 
