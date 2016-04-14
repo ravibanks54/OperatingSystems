@@ -566,12 +566,14 @@ int join(int pid, void **stack, void **retval)
 }
 
 int mutex_init(void){
-	if (mutexCount > 31){
-		//max number of mutexes
+	if (mutexCount > 31 || mutexCount < 0){
+		//max number of mutexes or invalid
 		return -1;
 	}
 	
-	initlock(proc->mTable[&mutexCount].lock, "mutex");
+	initlock(&proc->mTable[mutexCount].lock, "mutex");
+	
+	proc->mTable[mutexCount].id = mutexCount;
 	
 	proc->mTable[mutexCount].isLocked = 0;  //Set to active/unlocked initially
 	proc->mTable[mutexCount].isActive = 1;	
