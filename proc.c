@@ -594,11 +594,12 @@ int mutex_lock(int mutex_id){
 		return -1;	//bad
 	}
 	
+	acquire(&proc->mTable[mutex_id].lock);
+	
 	if (proc->mTable[mutex_id].isActive == 0){
 		return -1;	//inactive lock, init again
 	}
 	
-	acquire(&proc->mTable[mutex_id].lock);
 	while(proc->mTable[mutexCount].isLocked == 1){	
 		sleep(&proc->mTable[mutex_id], &proc->mTable[mutex_id].lock);
 	}
@@ -617,10 +618,12 @@ int mutex_unlock(int mutex_id){
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
+	acquire(&proc->mTable[mutex_id].lock);
+
 	if (proc->mTable[mutex_id].isActive == 0){
 		return -1;	//inactive lock, init again
 	}
-	acquire(&proc->mTable[mutex_id].lock);
+	
 	proc->mTable[mutexCount].isLocked = 0;
 	wakeup(&proc->mTable[mutex_id].lock);
 	release(&proc->mTable[mutex_id].lock);
