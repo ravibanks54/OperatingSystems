@@ -479,9 +479,9 @@ int clone(void* func, void* arg, void* stack)
 
 	np->sz = proc->sz;
 	if (proc->isThread == 1){
-		np->parent = proc->parent;
+		np->parent = proc->parent; // makes thread a sibling
 	}else{
-		np->parent = proc;
+		np->parent = proc; // acts like fork makes a child
 	}
 	
 	// copy parent's stack
