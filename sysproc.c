@@ -156,24 +156,9 @@ sys_texit(void)
 int
 sys_mutex_init(void)
 {
-	void* threadptr;
-	//argint(0, &threadptr);
-	if (proc->mutexCount > 31 || proc->mutexCount < 0){
-		//max number of mutexes or invalid
-		return -1;
-	}
-	
-	initlock(proc->mTable[proc->mutexCount].lock, "mutex");
-	
-	proc->mTable[proc->mutexCount].id = proc->mutexCount;
-	
-	proc->mTable[proc->mutexCount].isLocked = 0;  //Set to active/unlocked initially
-	proc->mTable[proc->mutexCount].isActive = 1;	
-	
-	threadptr = &proc->mTable[proc->mutexCount];
-	
-	proc->mutexCount++;
-	return proc->mutexCount-1;	//Return the correct id after incrementing
+	int i = mutex_init();
+
+	return i; 
 }
 
 int

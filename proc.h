@@ -85,7 +85,7 @@ struct proc {
   int isThread;			//lets us know if process is acting as a threads
   void *retval;	// saves return value from texit
   int *sp; // keep reference to stack pointer
-  pthread_mutex_t mTable[32];
+  pthread_mutex_t* mTable[32];
   int mutexCount;
 };
 

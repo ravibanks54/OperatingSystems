@@ -1,46 +1,59 @@
 #include "types.h"
-#include "mmu.h"
 #include "stat.h"
 #include "user.h"
-#include "param.h"
 #include "fs.h"
-#include "proc.h"
-#include "x86.h"
+#include "fcntl.h"
+#include "pthread.h"
 
-/*
-int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg){
-	void* stack = malloc(4096);
-	if (clone(start_routine, arg, stack) == 0){
-		return 0;
-	}else{
-		return -1;
-	}
+// Implement your pthreads library here.
+
+
+int 
+pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg)
+{
+  thread->stack = (void *)malloc(4096);
+  thread->isThread = 1;
+  thread->func = (void*)(* start_routine);
+  thread->arg = arg;
+  thread->pid = clone(thread->func, thread->arg, thread->stack);
+  return thread->pid;  
 }
 
-int pthread_join(pthread_t thread, void **retval){
-	// free up stack	
-	return join();
+
+int 
+pthread_join(pthread_t thread, void **retval)
+{
+int ret = join(thread.pid, (void **)thread.stack, retval);
+free(thread.stack);
+return ret;
 }
 
-int pthread_exit(void *retval){
-	return texit(retval);
-}
 
-*/
+
+int 
+pthread_exit(void *retval)
+{
+	texit(retval);
+	return 0;
+}
 
 
 int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr){
 	int mutexid = mutex_init();
+	printf(1,"Mutexid: %d\n", mutexid);
 	mutex->id = mutexid; 
 }
 
 int pthread_mutex_destroy(pthread_mutex_t *mutex){
-	return mutex_init(mutex->id);
+	return mutex_destroy(mutex->id);
 }
 
 int pthread_mutex_lock(pthread_mutex_t *mutex){
-	return mutex_init(mutex->id);
+	return mutex_lock(mutex->id);
 }
+
 int pthread_mutex_unlock(pthread_mutex_t *mutex){
-	return mutex_init(mutex->id);
+	return mutex_unlock(mutex->id);
 }
+
+

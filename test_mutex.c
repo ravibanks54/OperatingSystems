@@ -20,6 +20,7 @@ void *thread(void *arg)
 	printf(1, "thread %d: started...\n", *(int*)arg);
 
 	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {
+		//printf(1,"About to lock:\n");
 		pthread_mutex_lock(&mutex);
 		
 		counter = g_counter;
@@ -80,6 +81,7 @@ int main(int argc, char **argv)
 	// Wait for all children
 	for (i=0; i<NUM_THREADS; i++) {
 		void *retval;
+		printf(1,"calling join");
 		pthread_join(threads[i], &retval);
 		printf(1, "main: thread %d joined...retval=%d\n", i, *(int*)retval);
 	}

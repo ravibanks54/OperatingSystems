@@ -44,6 +44,7 @@ allocproc(void)
     if(p->state == UNUSED)
       goto found;
   release(&ptable.lock);
+
   return 0;
 
 found:
@@ -73,6 +74,7 @@ found:
   p->context->eip = (uint)forkret;
   p->isThread = 0;
  // p->retVal = 0;
+  p->mutexCount = 0;
   return p;
 }
 
@@ -479,9 +481,9 @@ int clone(void* func, void* arg, void* stack)
 
 	np->sz = proc->sz;
 	if (proc->isThread == 1){
-		np->parent = proc->parent;
+		np->parent = proc->parent; // makes thread a sibling
 	}else{
-		np->parent = proc;
+		np->parent = proc; // acts like fork makes a child
 	}
 	
 	// copy parent's stack
@@ -565,30 +567,35 @@ int join(int pid, void **stack, void **retval)
 
 }
 
+
 int mutex_init(void){
-	if (proc->mutexCount > 31 || proc->mutexCount < 0){
-		//max number of mutexes or invalid
-		return -1;
+ 	int i;
+	for (i = 0; i <32; i++){
+		if(proc->mTable[i]->isActive == 0){
+			initlock(proc->mTable[i]->lock, "mutex");
+			proc->mTable[i]->isLocked = 0;
+			proc->mTable[i]->id = i;
+			//acquire(proc->mTable[proc->mutexCount]->lock);
+			//cprintf("In between acquire and release\n");
+			proc->mTable[i]->isActive = 1;	
+			//release(proc->mTable[i]->lock);	
+			return i;
+		}
 	}
-	
-	initlock(proc->mTable[proc->mutexCount].lock, "mutex");
-	
-	proc->mTable[proc->mutexCount].id = proc->mutexCount;
-	
-	proc->mTable[proc->mutexCount].isLocked = 0;  //Set to active/unlocked initially
-	proc->mTable[proc->mutexCount].isActive = 1;	
-	
-	proc->mutexCount++;
-	return proc->mutexCount-1;	//Return the correct id after incrementing
-} 
+	return -1;
+}
 
 int mutex_destroy(int mutex_id){
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
-	proc->mTable[mutex_id].isLocked = 0;  
-	proc->mTable[mutex_id].isActive = 0;	//Set to inactive
-	return 0;
+	if (proc->mTable[mutex_id]->isLocked == 0){ // only destroy a lock that is unlocked
+		proc->mTable[mutex_id]->isLocked = 0;  
+		proc->mTable[mutex_id]->isActive = 0;	//Set to inactive
+	
+	return 0;	
+	}
+	return -1;	
 }
 
 int mutex_lock(int mutex_id){
@@ -596,23 +603,23 @@ int mutex_lock(int mutex_id){
 		return -1;	//bad
 	}
 	
-	acquire(proc->mTable[mutex_id].lock);
-	
-	if (proc->mTable[mutex_id].isActive == 0){
-		return -1;	//inactive lock, init again
+	acquire(proc->mTable[mutex_id]->lock);
+
+	cprintf("ACQUIRED\n");
+	if (proc->mTable[mutex_id]->isActive == 0){
+	cprintf("Reached here 2\n");
+		return -1;	//inactive lock, init again	
 	}
 	
-	while(proc->mTable[mutex_id].isLocked == 1){	
-		sleep(&proc->mTable[mutex_id], proc->mTable[mutex_id].lock);
+	while(proc->mTable[mutex_id]->isLocked == 1){	
+		cprintf("Reached here 3\n");		
+		sleep(&mutex_id, proc->mTable[mutex_id]->lock);
 	}
-	release(proc->mTable[mutex_id].lock);
-	if (proc->mTable[mutex_id].isLocked != 0){	//Redundant check
-		return -1;
-		//wtf just happened, throw error
-	}else{
-		proc->mTable[mutex_id].isLocked = 1;
-		return 0;
-	}
+
+		proc->mTable[mutex_id]->isLocked = 1;
+		release(proc->mTable[mutex_id]->lock);
+	cprintf("RELEASED\n");
+	
 	return 0;
 }
 
@@ -620,14 +627,14 @@ int mutex_unlock(int mutex_id){
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
-	acquire(proc->mTable[mutex_id].lock);
+	acquire(proc->mTable[mutex_id]->lock);
 
-	if (proc->mTable[mutex_id].isActive == 0){
+	/*if (proc->mTable[mutex_id]->isActive == 0){
 		return -1;	//inactive lock, init again
-	}
+	}*/
 	
-	proc->mTable[proc->mutexCount].isLocked = 0;
-	wakeup(proc->mTable[mutex_id].lock);
-	release(proc->mTable[mutex_id].lock);
+	proc->mTable[proc->mutexCount]->isLocked = 0;
+	wakeup(&mutex_id);
+	release(proc->mTable[mutex_id]->lock);
 	return 0;
 }
