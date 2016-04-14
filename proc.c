@@ -563,5 +563,20 @@ int join(int pid, void **stack, void **retval)
 
   return 0;
 
+}
 
+int mutex_init(void){
+	return 0;
+} 
+
+int mutex_destroy(int mutex_id){
+	return 0;
+}
+
+int mutex_lock(int mutex_id){
+	return 0;
+}
+
+int mutex_unlock(int mutex_id){
+	return 0;
 }
