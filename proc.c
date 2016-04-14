@@ -566,7 +566,7 @@ int join(int pid, void **stack, void **retval)
 }
 
 int mutex_init(void){
-	if (mutexCount > 31 || mutexCount < 0){
+	if (proc->mutexCount > 31 || proc->mutexCount < 0){
 		//max number of mutexes or invalid
 		return -1;
 	}
