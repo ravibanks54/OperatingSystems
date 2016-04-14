@@ -566,7 +566,15 @@ int join(int pid, void **stack, void **retval)
 }
 
 int mutex_init(void){
-	return 0;
+	if (mutexCount > 31){
+		//max number of mutexes
+		return -1;
+	}
+	
+	proc->mTable[mutexCount].isActive = 0;	//Set to inactive initially
+	
+	proc->mutexCount++;
+	return proc->mutexCount-1;	//Return the correct id after incrementing
 } 
 
 int mutex_destroy(int mutex_id){
@@ -574,9 +582,21 @@ int mutex_destroy(int mutex_id){
 }
 
 int mutex_lock(int mutex_id){
+	while(proc->mTable[mutexCount].isActive == 1){
+		//sleep
+	}
+	if (proc->mTable[mutexCount].isActive != 0){	//Redundant check
+		//wtf just happened, throw error
+	}else{
+		proc->mTable[mutexCount].isActive = 1;
+		return 0;
+	}
 	return 0;
 }
 
 int mutex_unlock(int mutex_id){
+	//acquire
+	proc->mTable[mutexCount].isActive = 0;
+	//wakeup
 	return 0;
 }

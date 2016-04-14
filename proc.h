@@ -48,6 +48,12 @@ struct context {
   uint ebp;
   uint eip;
 };
+
+struct mutex {
+  //int id;
+  int isActive;
+};
+
 int clone(void* func, void* arg, void* stack);
 int join(int pid, void **stack, void **retval);
 int mutex_init(void);
@@ -75,6 +81,8 @@ struct proc {
   int isThread;			//lets us know if process is acting as a threads
   void *retval;	// saves return value from texit
   int *sp; // keep reference to stack pointer
+  struct mutex mTable[32];
+  int mutexCount;
 };
 
 // Process memory is laid out contiguously, low addresses first:
