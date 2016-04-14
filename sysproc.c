@@ -157,20 +157,20 @@ int
 sys_mutex_init(void)
 {
 	void* threadptr;
-	argint(0, &threadptr);
+	//argint(0, &threadptr);
 	if (proc->mutexCount > 31 || proc->mutexCount < 0){
 		//max number of mutexes or invalid
 		return -1;
 	}
 	
-	initlock(&proc->mTable[mutexCount].lock, "mutex");
+	initlock(proc->mTable[proc->mutexCount].lock, "mutex");
 	
-	proc->mTable[mutexCount].id = mutexCount;
+	proc->mTable[proc->mutexCount].id = proc->mutexCount;
 	
-	proc->mTable[mutexCount].isLocked = 0;  //Set to active/unlocked initially
-	proc->mTable[mutexCount].isActive = 1;	
+	proc->mTable[proc->mutexCount].isLocked = 0;  //Set to active/unlocked initially
+	proc->mTable[proc->mutexCount].isActive = 1;	
 	
-	threadptr = &proc->mTable[mutexCount];
+	threadptr = &proc->mTable[proc->mutexCount];
 	
 	proc->mutexCount++;
 	return proc->mutexCount-1;	//Return the correct id after incrementing
@@ -179,23 +179,23 @@ sys_mutex_init(void)
 int
 sys_mutex_destroy(void)
 {
-	void* threadptr;
-	argint(0, &threadptr);
-	return mutex_destroy((pthread_mutex_t*)threadptr->id);
+	int index; 
+	argint(0, &index);
+	return mutex_destroy(index);
 }
 
 int
 sys_mutex_lock(void)
 {
-	void* threadptr;
-	argint(0, &threadptr);
-	return mutex_lock((void*)threadptr->id);
+	int index; 
+	argint(0, &index);
+	return mutex_lock(index);
 }
 
 int sys_mutex_unlock(void)
 {
-	int threadptr;
-	argint(0, &threadptr);
-	return mutex_lock((void*)threadptr->id);
+	int index; 
+	argint(0, &index);	
+	return mutex_lock(index);
 }
 
