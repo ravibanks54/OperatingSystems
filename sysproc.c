@@ -156,6 +156,7 @@ sys_texit(void)
 int
 sys_mutex_init(void)
 {
+
 	int i = mutex_init();
 
 	return i; 
@@ -166,6 +167,9 @@ sys_mutex_destroy(void)
 {
 	int index; 
 	argint(0, &index);
+	if (index>31){
+		index = index%31;
+	}
 	return mutex_destroy(index);
 }
 
@@ -174,13 +178,21 @@ sys_mutex_lock(void)
 {
 	int index; 
 	argint(0, &index);
+	if (index>31){
+		index = index%31;
+		cprintf("Muted id: %d", index);
+	}
 	return mutex_lock(index);
 }
 
 int sys_mutex_unlock(void)
 {
 	int index; 
-	argint(0, &index);	
+	argint(0, &index);
+	if (index>31){
+		index = index%31;
+		cprintf("Mutex id: %d", index);
+	}	
 	return mutex_lock(index);
 }
 

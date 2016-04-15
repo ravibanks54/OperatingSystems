@@ -44,7 +44,18 @@ allocproc(void)
     if(p->state == UNUSED)
       goto found;
   release(&ptable.lock);
-
+ 	int i;
+	for (i = 0; i <32; i++){
+			initlock(proc->mTable[i]->lock, "mutex");
+			proc->mTable[i]->isLocked = 0;
+			proc->mTable[i]->id = i;
+			proc->mTable[i]->isActive = 0;	
+			//acquire(proc->mTable[proc->mutexCount]->lock);
+			//cprintf("In between acquire and release\n");			
+			//release(proc->mTable[i]->lock);	
+			//return i;
+		
+	}
   return 0;
 
 found:
@@ -567,22 +578,22 @@ int join(int pid, void **stack, void **retval)
 
 }
 
-
 int mutex_init(void){
  	int i;
 	for (i = 0; i <32; i++){
-		if(proc->mTable[i]->isActive == 0){
-			initlock(proc->mTable[i]->lock, "mutex");
-			proc->mTable[i]->isLocked = 0;
-			proc->mTable[i]->id = i;
-			//acquire(proc->mTable[proc->mutexCount]->lock);
-			//cprintf("In between acquire and release\n");
+		
+		cprintf("Is Active Value: %d\n", &proc->mTable[i]->isActive); // not print out zero
+		if((proc->mTable[i]->isActive) == 0){ // never reaches here
+			acquire(proc->mTable[i]->lock);
+			cprintf("In between acquire and release\n");
 			proc->mTable[i]->isActive = 1;	
-			//release(proc->mTable[i]->lock);	
+			release(proc->mTable[i]->lock);	
+			cprintf("Init value: %d\n",i);			
 			return i;
 		}
 	}
 	return -1;
+	//return 0;
 }
 
 int mutex_destroy(int mutex_id){
@@ -599,7 +610,11 @@ int mutex_destroy(int mutex_id){
 }
 
 int mutex_lock(int mutex_id){
+
 	if (mutex_id < 0 || mutex_id > 31){
+		if(mutex_id != -1){			
+		cprintf("mutex id is bad.: %d\n", mutex_id);
+		}
 		return -1;	//bad
 	}
 	
