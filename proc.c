@@ -622,13 +622,13 @@ int mutex_init(void){
 		//cprintf("Is Active Value: %d\n", *(proc->mTable[i].isActive)); // not print out zero
 		if(*(proc->mTable[i].isActive) == 0){ // never reaches here
 			//cprintf("About to acquire for id %d,\n", i);			
-			acquire(&(proc->mTable[i].lock));
+			//acquire(&(proc->mTable[i].lock));
 			//cprintf("In between acquire and release\n");
 			(proc->mTable[i].isActive) = &true;	
-				
+			proc->mTable[i].chan = &(proc->mTable[i]);
 			//cprintf("Init value: %d\n",*(proc->mTable[i].isActive));			
 			proc->mutexCount++;
-			release(&(proc->mTable[i].lock));			
+			//release(&(proc->mTable[i].lock));			
 			return i;
 		}
 	}
@@ -637,71 +637,44 @@ int mutex_init(void){
 }
 
 int mutex_destroy(int mutex_id){
-
-	cprintf("In mutex destroy\n");
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
 	if (proc->mTable[mutex_id].isLocked == 0){ // only destroy a lock that is unlocked
 		proc->mTable[mutex_id].isLocked = &false;  
 		proc->mTable[mutex_id].isActive = &false;	//Set to inactive
-	
-	return 0;	
+		return 0;	
 	}
 	return -1;	
 
 }
 
 int mutex_lock(int mutex_id){
-	//cprintf("In mutex lock for id %d\n",mutex_id);
 	if (mutex_id < 0 || mutex_id > 31){
-		if(mutex_id != -1){			
-		cprintf("mutex id is bad.: %d\n", mutex_id);
-		}
 		return -1;	//bad
 	}
-	if (*(proc->mTable[mutex_id].isActive) == 0){
-	//cprintf("Inactive lock\n");
-
-		
+	if (*(proc->parent->mTable[mutex_id].isActive) == 0){
 		return -1;	//inactive lock, init again	
 	}
-	acquire(&(proc->mTable[mutex_id].lock));
-	//cprintf("ACQUIRED\n");
-	//cprintf("checking if isLocked %d\n", proc->mTable[mutex_id].isLocked);
-	while(*proc->mTable[mutex_id].isLocked == 1){	
-		//cprintf("Reached here 3\n");
-		//proc->mTable[mutex_id].isLocked = &false;	
-		//cprintf("Going to sleep\n");	
-		sleep(&mutex_id, &(proc->mTable[mutex_id].lock));
-		//cprintf("returned");
+	acquire(&(proc->parent->mTable[mutex_id].lock));
+	while(*proc->parent->mTable[mutex_id].isLocked == 1){		
+		sleep(proc->parent->mTable[mutex_id].chan, &(proc->parent->mTable[mutex_id].lock));
 	}
-
-
-		proc->mTable[mutex_id].isLocked = &true;
-		//release(&lock);
-		
-		release(&(proc->mTable[mutex_id].lock));
-	//cprintf("RELEASED\n");
-	
+	proc->parent->mTable[mutex_id].isLocked = &true;
+	release(&(proc->parent->mTable[mutex_id].lock));
 	return 0;
 }
 
 int mutex_unlock(int mutex_id){
-
-
-	//cprintf("In mutex unlock\n");
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
-	if (*(proc->mTable[mutex_id].isActive) == 0){		
+	if (*(proc->parent->mTable[mutex_id].isActive) == 0){		
 		return -1;	//inactive lock, init again
-	}
-		
-	acquire(&(proc->mTable[mutex_id].lock));
-
-	proc->mTable[proc->mutexCount].isLocked = &false;
-	wakeup(&mutex_id);
-	release(&(proc->mTable[mutex_id].lock));
+	}	
+	acquire(&(proc->parent->mTable[mutex_id].lock));
+	proc->parent->mTable[proc->mutexCount].isLocked = &false;
+	wakeup(proc->parent->mTable[mutex_id].chan);
+	release(&(proc->parent->mTable[mutex_id].lock));
 	return 0;
 }
