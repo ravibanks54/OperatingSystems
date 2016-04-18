@@ -20,7 +20,7 @@ void *thread(void *arg)
 	printf(1, "thread %d: started...\n", *(int*)arg);
 
 	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {
-		//printf(1,"About to lock:\n");
+		
 		pthread_mutex_lock(&mutex);
 		
 		counter = g_counter;
@@ -28,7 +28,7 @@ void *thread(void *arg)
 		counter++;
 		sleep(0);
 		g_counter = counter;
-
+		
 		pthread_mutex_unlock(&mutex);
 	}
 

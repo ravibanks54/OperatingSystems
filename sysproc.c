@@ -188,24 +188,26 @@ sys_mutex_destroy(void)
 
 int
 sys_mutex_lock(void)
-{
+{	
+	//cprintf("Called lock\n");
 	int index; 
 	argint(0, &index);
-	if (index>31){
+	/*if (index>31){
 		index = index%31;
 		cprintf("Muted id: %d", index);
-	}
+	}*/
 	return mutex_lock(index);
 }
 
 int sys_mutex_unlock(void)
 {
+	//cprintf("Called unlock\n");
 	int index; 
 	argint(0, &index);
-	if (index>31){
+	/*if (index>31){
 		index = index%31;
 		cprintf("Mutex id: %d", index);
-	}	
-	return mutex_lock(index);
+	}*/	
+	return mutex_unlock(index);
 }
 
