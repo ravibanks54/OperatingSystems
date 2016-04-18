@@ -41,7 +41,7 @@ pthread_exit(void *retval)
 int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr){
 	int mutexid = mutex_init();
 	printf(1,"Mutexid: %d\n", mutexid);
-	mutex->id = mutexid; 
+	return mutex->id = mutexid; 
 }
 
 int pthread_mutex_destroy(pthread_mutex_t *mutex){

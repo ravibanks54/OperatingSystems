@@ -1,3 +1,4 @@
+#include "spinlock.h"
 // Segments in proc->gdt.
 #define NSEGS     7
 
@@ -49,12 +50,13 @@ struct context {
   uint eip;
 };
 
-typedef struct pthread_mutex {
+/*typedef struct pthread_mutex {
   int id;
   int isLocked;
   int isActive;
-  struct spinlock * lock;
-}pthread_mutex_t;
+  struct spinlock *lock;
+   //struct mLock lock;
+}pthread_mutex_t; */
 
 
 
@@ -85,8 +87,9 @@ struct proc {
   int isThread;			//lets us know if process is acting as a threads
   void *retval;	// saves return value from texit
   int *sp; // keep reference to stack pointer
-  pthread_mutex_t *mTable[32];
+  pthread_mutex_t mTable[32];
   int mutexCount;
+  //int tableInit;
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -156,10 +156,23 @@ sys_texit(void)
 int
 sys_mutex_init(void)
 {
+	/*if(proc->mutexCount == 0){
+	int i;	  
+	for (i = 1; i <32; i++){
+			initlock(proc->mTable[i]->lock, "mutex");
+			proc->mTable[i]->isLocked = 0;
+			proc->mTable[i]->id = i;
+			proc->mTable[i]->isActive = 0;	
+			//acquire(proc->mTable[proc->mutexCount]->lock);
+			//cprintf("In between acquire and release\n");			
+			//release(proc->mTable[i]->lock);	
+			//return i;*
+		
+	 }	
+     	proc->mutexCount++; 
+     }*/
 
-	int i = mutex_init();
-
-	return i; 
+	return mutex_init();
 }
 
 int
