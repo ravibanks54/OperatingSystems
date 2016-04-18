@@ -13,6 +13,8 @@ struct {
 } ptable;
 
 
+static int true = 1; 
+static int false = 0;
 static struct proc *initproc;
 //static struct spinlock lk;
 int nextpid = 1;
@@ -183,7 +185,7 @@ int z;
           initlock(&(np->mTable[z].lock), "mutex");
 			np->mTable[z].isLocked = 0;
 			np->mTable[z].id = i;
-			np->mTable[z].isActive = 0;	
+			np->mTable[z].isActive = &false;	
 			//acquire(proc->mTable[proc->mutexCount]->lock);
 			//cprintf("In between acquire and release\n");			
 			//release(proc->mTable[i]->lock);	
@@ -599,14 +601,14 @@ int mutex_init(void){
  	int i;
 	for (i = 0; i <32; i++){
 		
-		cprintf("Is Active Value: %d\n", proc->mTable[i].isActive); // not print out zero
-		if((proc->mTable[i].isActive) == 0){ // never reaches here
+		cprintf("Is Active Value: %d\n", *(proc->mTable[i].isActive)); // not print out zero
+		if(*(proc->mTable[i].isActive) == 0){ // never reaches here
 			cprintf("About to acquire for id %d,\n", i);			
 			acquire(&(proc->mTable[i].lock));
 			cprintf("In between acquire and release\n");
-			proc->mTable[i].isActive = 1;	
+			(proc->mTable[i].isActive) = &true;	
 				
-			cprintf("Init value: %d\n",proc->mTable[i].isActive);			
+			cprintf("Init value: %d\n",*(proc->mTable[i].isActive));			
 			proc->mutexCount++;
 			release(&(proc->mTable[i].lock));			
 			return i;
@@ -623,7 +625,7 @@ int mutex_destroy(int mutex_id){
 	}
 	if (proc->mTable[mutex_id].isLocked == 0){ // only destroy a lock that is unlocked
 		proc->mTable[mutex_id].isLocked = 0;  
-		proc->mTable[mutex_id].isActive = 0;	//Set to inactive
+		proc->mTable[mutex_id].isActive = &false;	//Set to inactive
 	
 	return 0;	
 	}
@@ -642,12 +644,12 @@ int mutex_lock(int mutex_id){
 	acquire(&(proc->mTable[mutex_id].lock));
 	//acquire(&lock);
 	cprintf("ACQUIRED\n");
-	if (proc->mTable[mutex_id].isActive == 0){
+	if (*(proc->mTable[mutex_id].isActive) == 0){
 	cprintf("Inactive lock\n");
 		release(&(proc->mTable[mutex_id].lock));
 		return -1;	//inactive lock, init again	
 	}
-	
+	cprintf("checking if isLocked %d\n", proc->mTable[mutex_id].isLocked);
 	while(proc->mTable[mutex_id].isLocked == 1){	
 		cprintf("Reached here 3\n");		
 		sleep(&mutex_id, &(proc->mTable[mutex_id].lock));
