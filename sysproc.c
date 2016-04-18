@@ -119,7 +119,6 @@ sys_clone(void)
 	}
 
 	return clone((void*)func, (void*)arg, (void*)stack);
-	//return 0;
 	
 }
 int
@@ -138,7 +137,6 @@ sys_join(void)
 	}
 
 	return join(pid, (void**)joinstack, (void**)retval);
-	//return 0; 
 }
 
 int
@@ -148,30 +146,12 @@ sys_texit(void)
 	int rVal;
 	argint(0, &rVal); 
 	proc->retval = (void*)rVal;
-	//int rPrint = *(int*)(proc->retval); // previously proc->retval was a void**
-	//cprintf(" retval: %d, rVal: %d\n",rPrint, rVal);
 	exit();
 	return 0;
 }
 int
 sys_mutex_init(void)
 {
-	/*if(proc->mutexCount == 0){
-	int i;	  
-	for (i = 1; i <32; i++){
-			initlock(proc->mTable[i]->lock, "mutex");
-			proc->mTable[i]->isLocked = 0;
-			proc->mTable[i]->id = i;
-			proc->mTable[i]->isActive = 0;	
-			//acquire(proc->mTable[proc->mutexCount]->lock);
-			//cprintf("In between acquire and release\n");			
-			//release(proc->mTable[i]->lock);	
-			//return i;*
-		
-	 }	
-     	proc->mutexCount++; 
-     }*/
-
 	return mutex_init();
 }
 
@@ -189,25 +169,15 @@ sys_mutex_destroy(void)
 int
 sys_mutex_lock(void)
 {	
-	//cprintf("Called lock\n");
 	int index; 
 	argint(0, &index);
-	/*if (index>31){
-		index = index%31;
-		cprintf("Muted id: %d", index);
-	}*/
 	return mutex_lock(index);
 }
 
 int sys_mutex_unlock(void)
 {
-	//cprintf("Called unlock\n");
 	int index; 
-	argint(0, &index);
-	/*if (index>31){
-		index = index%31;
-		cprintf("Mutex id: %d", index);
-	}*/	
+	argint(0, &index);	
 	return mutex_unlock(index);
 }
 

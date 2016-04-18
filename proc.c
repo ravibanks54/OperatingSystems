@@ -86,7 +86,7 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
   p->isThread = 0;
-  p->mutexCount=0;
+  //p->mutexCount=0;
   //p->retVal = 0;
   return p;
 }
@@ -180,16 +180,10 @@ fork(void)
   np->state = RUNNABLE;
 int z;
 	for (z = 0; z <32; z++){
-	//struct spinlock lk;
-	//np->mTable[z].lock = &lk;
-          initlock(&(np->mTable[z].lock), "mutex");
-			np->mTable[z].isLocked = &false;
-			np->mTable[z].id = i;
-			np->mTable[z].isActive = &false;	
-			//acquire(proc->mTable[proc->mutexCount]->lock);
-			//cprintf("In between acquire and release\n");			
-			//release(proc->mTable[i]->lock);	
-			//return i;
+        	initlock(&(np->mTable[z].lock), "mutex");
+		np->mTable[z].isLocked = &false;
+		np->mTable[z].id = i;
+		np->mTable[z].isActive = &false;	
 	}
   
   release(&ptable.lock);
@@ -521,11 +515,6 @@ int clone(void* func, void* arg, void* stack)
 	np->tf->eax = 0;
 	np->tf->eip = (int)func;
 	np->sp = stack;
-	//np->mTable = proc->mTable;
-	//np->mutexCount = proc->mutexCount;
-	//what do i do with the arguments?
-	//do some trapframe esp magic idk
-	//Place some garbage value as the return value, make the esp be right above the function pointer and below the function pointers should be the arguments.
 	np->tf->esp = (int)stack + 4092; // push stack onto trapframe. IS this correct?
 	*((int *)(np->tf->esp)) = (int)arg;
 	*((int *)(np->tf->esp - 4)) = 0xFFFFFFFF;
@@ -545,16 +534,7 @@ int clone(void* func, void* arg, void* stack)
 	np->state = RUNNABLE;
 	int z;
 	for (z = 0; z <32; z++){
-	//struct spinlock lk;
-	//np->mTable[z].lock = &lk;
           np->mTable[z] = proc->mTable[z]; 
-			//np->mTable[z].isLocked = &false;
-			//np->mTable[z].id = i;
-			//np->mTable[z].isActive = &false;	
-			//acquire(proc->mTable[proc->mutexCount]->lock);
-			//cprintf("In between acquire and release\n");			
-			//release(proc->mTable[i]->lock);	
-			//return i;
 	}
 
 
@@ -617,7 +597,7 @@ int mutex_init(void){
 			//acquire(&(proc->mTable[i].lock));
 			(proc->mTable[i].isActive) = &true;	
 			proc->mTable[i].chan = &(proc->mTable[i]);
-			proc->mutexCount++;
+			//proc->mutexCount++;
 			//release(&(proc->mTable[i].lock));			
 			return i;
 		}
@@ -663,7 +643,7 @@ int mutex_unlock(int mutex_id){
 		return -1;	//inactive lock, init again
 	}	
 	acquire(&(proc->parent->mTable[mutex_id].lock));
-	proc->parent->mTable[proc->mutexCount].isLocked = &false;
+	proc->parent->mTable[mutex_id].isLocked = &false;
 	wakeup(proc->parent->mTable[mutex_id].chan);
 	release(&(proc->parent->mTable[mutex_id].lock));
 	return 0;

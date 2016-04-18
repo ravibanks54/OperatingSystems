@@ -50,15 +50,6 @@ struct context {
   uint eip;
 };
 
-/*typedef struct pthread_mutex {
-  int id;
-  int isLocked;
-  int isActive;
-  struct spinlock *lock;
-   //struct mLock lock;
-}pthread_mutex_t; */
-
-
 
 int clone(void* func, void* arg, void* stack);
 int join(int pid, void **stack, void **retval);
@@ -88,8 +79,6 @@ struct proc {
   void *retval;	// saves return value from texit
   int *sp; // keep reference to stack pointer
   pthread_mutex_t mTable[32];
-  int mutexCount;
-  //int tableInit;
 };
 
 // Process memory is laid out contiguously, low addresses first:

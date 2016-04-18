@@ -18,7 +18,6 @@ typedef struct pthread_mutex {
   int *isLocked;
   int *isActive;
   struct spinlock lock;
-   //struct mLock lock;
    void* chan;
 } pthread_mutex_t;
 #endif
