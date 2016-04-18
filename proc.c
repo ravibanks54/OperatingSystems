@@ -611,22 +611,12 @@ int join(int pid, void **stack, void **retval)
 }
 
 int mutex_init(void){
-	//cprintf("In mutex init\n");
-	
-
-
  	int i;
-
 	for (i = 0; i <32; i++){
-		
-		//cprintf("Is Active Value: %d\n", *(proc->mTable[i].isActive)); // not print out zero
-		if(*(proc->mTable[i].isActive) == 0){ // never reaches here
-			//cprintf("About to acquire for id %d,\n", i);			
+		if(*(proc->mTable[i].isActive) == 0){ // never reaches here		
 			//acquire(&(proc->mTable[i].lock));
-			//cprintf("In between acquire and release\n");
 			(proc->mTable[i].isActive) = &true;	
 			proc->mTable[i].chan = &(proc->mTable[i]);
-			//cprintf("Init value: %d\n",*(proc->mTable[i].isActive));			
 			proc->mutexCount++;
 			//release(&(proc->mTable[i].lock));			
 			return i;
