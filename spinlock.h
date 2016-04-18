@@ -15,7 +15,7 @@ struct spinlock {
 
 typedef struct pthread_mutex {
   int id;
-  int isLocked;
+  int *isLocked;
   int *isActive;
   struct spinlock lock;
    //struct mLock lock;

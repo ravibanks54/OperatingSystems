@@ -183,7 +183,7 @@ int z;
 	//struct spinlock lk;
 	//np->mTable[z].lock = &lk;
           initlock(&(np->mTable[z].lock), "mutex");
-			np->mTable[z].isLocked = 0;
+			np->mTable[z].isLocked = &false;
 			np->mTable[z].id = i;
 			np->mTable[z].isActive = &false;	
 			//acquire(proc->mTable[proc->mutexCount]->lock);
@@ -507,8 +507,9 @@ int clone(void* func, void* arg, void* stack)
 
 	np->sz = proc->sz;
 	if (proc->isThread == 1){
-		np->parent = proc->parent; // makes thread a sibling
+		np->parent = proc->parent; // makes thread a sibling	
 	}else{
+
 		np->parent = proc; // acts like fork makes a child
 	}
 	
@@ -520,7 +521,8 @@ int clone(void* func, void* arg, void* stack)
 	np->tf->eax = 0;
 	np->tf->eip = (int)func;
 	np->sp = stack;
-
+	//np->mTable = proc->mTable;
+	//np->mutexCount = proc->mutexCount;
 	//what do i do with the arguments?
 	//do some trapframe esp magic idk
 	//Place some garbage value as the return value, make the esp be right above the function pointer and below the function pointers should be the arguments.
@@ -541,6 +543,21 @@ int clone(void* func, void* arg, void* stack)
   // lock to force the compiler to emit the np->state write last.
 	acquire(&ptable.lock);
 	np->state = RUNNABLE;
+	int z;
+	for (z = 0; z <32; z++){
+	//struct spinlock lk;
+	//np->mTable[z].lock = &lk;
+          np->mTable[z] = proc->mTable[z]; 
+			//np->mTable[z].isLocked = &false;
+			//np->mTable[z].id = i;
+			//np->mTable[z].isActive = &false;	
+			//acquire(proc->mTable[proc->mutexCount]->lock);
+			//cprintf("In between acquire and release\n");			
+			//release(proc->mTable[i]->lock);	
+			//return i;
+	}
+
+
 	release(&ptable.lock);
 
   // exit();
@@ -599,6 +616,7 @@ int mutex_init(void){
 
 
  	int i;
+
 	for (i = 0; i <32; i++){
 		
 		//cprintf("Is Active Value: %d\n", *(proc->mTable[i].isActive)); // not print out zero
@@ -619,17 +637,19 @@ int mutex_init(void){
 }
 
 int mutex_destroy(int mutex_id){
+
 	cprintf("In mutex destroy\n");
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
 	if (proc->mTable[mutex_id].isLocked == 0){ // only destroy a lock that is unlocked
-		proc->mTable[mutex_id].isLocked = 0;  
+		proc->mTable[mutex_id].isLocked = &false;  
 		proc->mTable[mutex_id].isActive = &false;	//Set to inactive
 	
 	return 0;	
 	}
 	return -1;	
+
 }
 
 int mutex_lock(int mutex_id){
@@ -640,26 +660,27 @@ int mutex_lock(int mutex_id){
 		}
 		return -1;	//bad
 	}
-	
-	acquire(&(proc->mTable[mutex_id].lock));
-	//acquire(&lock);
-	//cprintf("ACQUIRED\n");
 	if (*(proc->mTable[mutex_id].isActive) == 0){
 	//cprintf("Inactive lock\n");
-		release(&(proc->mTable[mutex_id].lock));
+
+		
 		return -1;	//inactive lock, init again	
 	}
+	acquire(&(proc->mTable[mutex_id].lock));
+	//cprintf("ACQUIRED\n");
 	//cprintf("checking if isLocked %d\n", proc->mTable[mutex_id].isLocked);
-	while(proc->mTable[mutex_id].isLocked == 1){	
+	while(*proc->mTable[mutex_id].isLocked == 1){	
 		//cprintf("Reached here 3\n");
-		proc->mTable[mutex_id].isLocked = 0;	
+		//proc->mTable[mutex_id].isLocked = &false;	
 		//cprintf("Going to sleep\n");	
 		sleep(&mutex_id, &(proc->mTable[mutex_id].lock));
 		//cprintf("returned");
 	}
 
-		proc->mTable[mutex_id].isLocked = 1;
-		//release(&lock);		
+
+		proc->mTable[mutex_id].isLocked = &true;
+		//release(&lock);
+		
 		release(&(proc->mTable[mutex_id].lock));
 	//cprintf("RELEASED\n");
 	
@@ -667,18 +688,19 @@ int mutex_lock(int mutex_id){
 }
 
 int mutex_unlock(int mutex_id){
+
+
 	//cprintf("In mutex unlock\n");
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
-	acquire(&(proc->mTable[mutex_id].lock));
-
-	if (*(proc->mTable[mutex_id].isActive) == 0){
-		release(&(proc->mTable[mutex_id].lock));		
+	if (*(proc->mTable[mutex_id].isActive) == 0){		
 		return -1;	//inactive lock, init again
 	}
-	
-	proc->mTable[proc->mutexCount].isLocked = 0;
+		
+	acquire(&(proc->mTable[mutex_id].lock));
+
+	proc->mTable[proc->mutexCount].isLocked = &false;
 	wakeup(&mutex_id);
 	release(&(proc->mTable[mutex_id].lock));
 	return 0;
