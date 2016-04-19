@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	// Wait for all children
 	for (i=0; i<NUM_THREADS; i++) {
 		void *retval;
-		printf(1,"calling join");
+		//printf(1,"calling join");
 		pthread_join(threads[i], &retval);
 		printf(1, "main: thread %d joined...retval=%d\n", i, *(int*)retval);
 	}

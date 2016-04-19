@@ -560,7 +560,7 @@ int join(int pid, void **stack, void **retval)
 			if(p->state == ZOMBIE && pid == p->pid){
 				// Found one.
 				//pid = p->pid;
-				  cprintf("Found %d == %d\n",pid, p->pid);				
+				//  cprintf("Found %d == %d\n",pid, p->pid);				
 				kfree(p->kstack);
 				p->kstack = 0;
 				p->state = UNUSED;
@@ -569,8 +569,8 @@ int join(int pid, void **stack, void **retval)
 				p->name[0] = 0;
 				p->killed = 0;
 				release(&ptable.lock);
-				int rPrint = *(int*)(p->retval);
-				cprintf(" retval for pid %d, : %d\n",pid,  rPrint);                               
+				//int rPrint = *(int*)(p->retval);
+				//cprintf(" retval for pid %d, : %d\n",pid,  rPrint);                               
 				(*retval) = (p->retval);
 				return pid;
 			}
@@ -610,10 +610,12 @@ int mutex_destroy(int mutex_id){
 	if (mutex_id < 0 || mutex_id >31){
 		return -1; //bad
 	}
-	if (proc->mTable[mutex_id].isLocked == 0){ // only destroy a lock that is unlocked
-		proc->mTable[mutex_id].isLocked = &false;  
-		proc->mTable[mutex_id].isActive = &false;	//Set to inactive
-		return 0;	
+	if(*(proc->mTable[mutex_id].isActive) == 1){
+		if (*(proc->mTable[mutex_id].isLocked) == 0){ // only destroy a lock that is unlocked
+			proc->mTable[mutex_id].isLocked = &false;  
+			proc->mTable[mutex_id].isActive = &false;	//Set to inactive
+			return 0;	
+		}
 	}
 	return -1;	
 
